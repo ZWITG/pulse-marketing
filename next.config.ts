@@ -7,6 +7,7 @@ const isStatic = process.env.PULSE_STATIC === "1";
 const nextConfig: NextConfig = {
   ...(isStatic ? { output: "export" as const } : {}),
   pageExtensions: isStatic ? ["tsx", "ts", "jsx", "js"] : ["tsx", "ts", "jsx", "js", "server.ts"],
+  ...(isStatic && process.env.PULSE_BASE_PATH ? { basePath: process.env.PULSE_BASE_PATH } : {}),
   devIndicators: false,
   images: { unoptimized: true },
   trailingSlash: true,
