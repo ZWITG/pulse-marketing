@@ -17,7 +17,8 @@ Following the design-taste-frontend skill, app-screen mode, style `accent-ladder
 - Tailwind `@custom-variant`/`@theme` warnings under Turbopack are cosmetic for now, but check that dark mode actually works.
 - Sidebar workspace is now "Fieldnote Studio" (sample name). All 8 pages are restyled; tsc and `npm run build` pass (2026-11-14).
 - Turbopack dev server can go stale and stop serving new CSS (touching files does not help): kill the process on :3000 and restart `npm run dev`.
-- Next dev "N" badge overlaps the sidebar user row (dev only).
+- Build modes: `PULSE_STATIC=1` (via `npm run build:web`) = static export for Electron/Capacitor/APK; plain `next build` = server build with API routes. Route handlers must be named `route.server.ts` so the static build ignores them. `/api/posts/` (GET, POST) stores to `.data/posts.json` (gitignored, see `lib/db.server.ts`); the UI still uses localStorage and is not wired to it yet.
+- APK workflow fixed 2026-11-14 (static build, runner's own Android SDK); the exe was rebuilt.
 - Dev server runs on :3000 (`npm run dev`); on Windows PowerShell there is no `&&`, `grep`, `tail` or `head`.
 
 ## Next
