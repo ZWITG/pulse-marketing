@@ -1,7 +1,13 @@
 import type { NextConfig } from "next";
 
+// PULSE_STATIC=1 builds the static export used by the Electron and Capacitor apps.
+// Without it the app builds as a server so the API routes (route.server.ts) work.
+const isStatic = process.env.PULSE_STATIC === "1";
+
 const nextConfig: NextConfig = {
-  output: "export",
+  ...(isStatic ? { output: "export" as const } : {}),
+  pageExtensions: isStatic ? ["tsx", "ts", "jsx", "js"] : ["tsx", "ts", "jsx", "js", "server.ts"],
+  devIndicators: false,
   images: { unoptimized: true },
   trailingSlash: true,
   turbopack: {

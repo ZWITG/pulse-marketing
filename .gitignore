@@ -54,3 +54,4 @@ next-env.d.ts
 # design inspector output
 /.taste-skill/shots-*/
 /.taste-skill/before/
+/.data/
