@@ -1,0 +1,44 @@
+{
+  "name": "pulse-marketing",
+  "version": "0.1.0",
+  "main": "electron/main.js",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "build:web": "next build",
+    "build:exe": "npm run build:web && electron-builder --win",
+    "cap:init": "npx cap add android",
+    "cap:sync": "npx cap sync",
+    "cap:open": "npx cap open android"
+  },
+  "dependencies": {
+    "next": "16.4.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/cli": "^8.6.2",
+    "@capacitor/core": "^8.6.2",
+    "@tailwindcss/turbopack": "4.3.3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "electron": "^45.3.2",
+    "electron-builder": "^26.18.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.6",
+    "tailwindcss": "4.3.3",
+    "typescript": "^5"
+  },
+  "build": {
+    "appId": "com.pulse.marketing",
+    "productName": "Pulse Marketing",
+    "files": ["out/**/*", "electron/**/*", "package.json"],
+    "directories": { "output": "dist" },
+    "win": { "target": "nsis" }
+  }
+}
