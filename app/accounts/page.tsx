@@ -1,5 +1,6 @@
 import { accounts, platformMeta } from "@/lib/mock-data";
 import { num, signed } from "@/lib/format";
+import PostingStatus from "@/components/posting-status";
 
 export default function AccountsPage() {
   const connected = accounts.filter((a) => a.connected).length;
@@ -12,6 +13,7 @@ export default function AccountsPage() {
         </div>
         <button className="btn btn-primary">Connect account</button>
       </div>
+      <PostingStatus />
       <section className="card" aria-label="Channels">
         <div className="tbl-wrap">
         <table className="tbl">
