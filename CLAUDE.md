@@ -15,10 +15,11 @@ Following the design-taste-frontend skill, app-screen mode, style `accent-ladder
 
 ## Known issues
 - Tailwind `@custom-variant`/`@theme` warnings under Turbopack are cosmetic for now, but check that dark mode actually works.
-- Sidebar says "Acme Corp workspace" (placeholder; the design skill forbids Acme).
+- Sidebar workspace is now "Fieldnote Studio" (sample name). All 8 pages are restyled; tsc and `npm run build` pass (2026-11-14).
+- Turbopack dev server can go stale and stop serving new CSS (touching files does not help): kill the process on :3000 and restart `npm run dev`.
+- Next dev "N" badge overlaps the sidebar user row (dev only).
 - Dev server runs on :3000 (`npm run dev`); on Windows PowerShell there is no `&&`, `grep`, `tail` or `head`.
 
 ## Next
-1. Finish restyling remaining pages; verify at 1440 and 390 widths.
-2. Real backend: OAuth for Instagram/X/LinkedIn/TikTok, DB, job queue for scheduled posts (static export must be dropped for API routes).
+1. Real backend: OAuth for Instagram/X/LinkedIn/TikTok, DB, job queue for scheduled posts (static export must be dropped for API routes).
 3. Replace mock data and AI caption/reply stubs with real calls.

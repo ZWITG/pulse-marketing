@@ -50,3 +50,7 @@ next-env.d.ts
 # android (regenerated in CI)
 /android/
 
+
+# design inspector output
+/.taste-skill/shots-*/
+/.taste-skill/before/

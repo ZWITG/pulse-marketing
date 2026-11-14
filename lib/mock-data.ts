@@ -44,8 +44,8 @@ export const accounts: ConnectedAccount[] = [
 ];
 
 export const posts: Post[] = [
-  { id: "p1", platform: "instagram", accountHandle: "@pulsebrand", content: "Behind the scenes of our new campaign shoot 📸", scheduledAt: "2026-11-15T09:00:00", status: "scheduled", impressions: 0, engagement: 0 },
-  { id: "p2", platform: "x", accountHandle: "@pulsebrand", content: "We just shipped a feature our users have been asking for. Thread 👇", scheduledAt: "2026-11-15T11:30:00", status: "scheduled", impressions: 0, engagement: 0 },
+  { id: "p1", platform: "instagram", accountHandle: "@pulsebrand", content: "Behind the scenes of our new campaign shoot", scheduledAt: "2026-11-15T09:00:00", status: "scheduled", impressions: 0, engagement: 0 },
+  { id: "p2", platform: "x", accountHandle: "@pulsebrand", content: "We just shipped a feature our users have been asking for. Thread below.", scheduledAt: "2026-11-15T11:30:00", status: "scheduled", impressions: 0, engagement: 0 },
   { id: "p3", platform: "linkedin", accountHandle: "Pulse Marketing", content: "How we cut our content production time by 60% using automation", scheduledAt: "2026-11-14T14:00:00", status: "published", impressions: 4820, engagement: 312 },
   { id: "p4", platform: "tiktok", accountHandle: "@pulsebrand", content: "POV: you finally automated your social media", scheduledAt: "2026-11-13T18:00:00", status: "published", impressions: 42100, engagement: 3890 },
   { id: "p5", platform: "instagram", accountHandle: "@pulsebrand", content: "New carousel: 5 metrics that actually matter", scheduledAt: "2026-11-16T10:00:00", status: "draft", impressions: 0, engagement: 0 },
@@ -53,18 +53,18 @@ export const posts: Post[] = [
 ];
 
 export const inboxItems: InboxItem[] = [
-  { id: "i1", platform: "instagram", author: "@sarahmktg", message: "Love this! Do you have a free trial?", type: "comment", receivedAt: "5 min ago", replied: false, priority: "high", suggestedReply: "Thanks Sarah! Yes — 14-day free trial, no card needed. Link in bio 🚀" },
+  { id: "i1", platform: "instagram", author: "@sarahmktg", message: "Love this! Do you have a free trial?", type: "comment", receivedAt: "5 min ago", replied: false, priority: "high", suggestedReply: "Thanks Sarah! Yes — 14-day free trial, no card needed. Link in bio." },
   { id: "i2", platform: "x", author: "@devjoe", message: "Feature request: bulk scheduling for threads", type: "mention", receivedAt: "12 min ago", replied: false, priority: "normal", suggestedReply: "Great idea Joe — added to our roadmap. We're scoping it for Q1." },
   { id: "i3", platform: "linkedin", author: "Maya Chen", message: "Great post. Would love to chat about a partnership.", type: "dm", receivedAt: "1 hr ago", replied: false, priority: "high", suggestedReply: "Thanks Maya! I'd love to chat — sending you a DM with my calendar link." },
-  { id: "i4", platform: "tiktok", author: "@creator_kim", message: "This is exactly what I needed 🔥", type: "comment", receivedAt: "2 hr ago", replied: true, priority: "low" },
+  { id: "i4", platform: "tiktok", author: "@creator_kim", message: "This is exactly what I needed.", type: "comment", receivedAt: "2 hr ago", replied: true, priority: "low" },
   { id: "i5", platform: "x", author: "@angry_user", message: "Your app keeps crashing on mobile", type: "mention", receivedAt: "3 hr ago", replied: false, priority: "high", suggestedReply: "Sorry about that! Could you share your device/OS? We're investigating and will DM you a fix." },
 ];
 
 export const platformMeta: Record<Platform, { label: string; color: string; initial: string }> = {
   instagram: { label: "Instagram", color: "#E1306C", initial: "I" },
-  x: { label: "X", color: "#000000", initial: "X" },
+  x: { label: "X", color: "#3a3336", initial: "X" },
   linkedin: { label: "LinkedIn", color: "#0A66C2", initial: "L" },
-  tiktok: { label: "TikTok", color: "#000000", initial: "T" },
+  tiktok: { label: "TikTok", color: "#2b2427", initial: "T" },
   facebook: { label: "Facebook", color: "#1877F2", initial: "F" },
   youtube: { label: "YouTube", color: "#FF0000", initial: "Y" },
 };
@@ -77,4 +77,15 @@ export const totals = {
   published: posts.filter((p) => p.status === "published").length,
   drafts: posts.filter((p) => p.status === "draft").length,
   unreadInbox: inboxItems.filter((i) => !i.replied).length,
+};
+
+// Daily series for the last 14 days (1 to 14 Nov 2026), connected channels only.
+// Followers gained per day; the 14 values add up to each account's 7-day delta over days 8-14.
+export const days14 = Array.from({ length: 14 }, (_, i) => new Date(2026, 10, 1 + i));
+export const followersGained: Record<string, number[]> = {
+  tiktok:    [80, 95, 110, 90, 120, 140, 105, 150, 170, 190, 160, 210, 180, 180],
+  instagram: [30, 28, 35, 31, 40, 38, 33, 42, 46, 50, 41, 52, 40, 41],
+  linkedin:  [8, 9, 7, 11, 10, 12, 9, 11, 13, 14, 12, 13, 12, 13],
+  youtube:   [2, 3, 2, 4, 3, 3, 2, 3, 4, 4, 3, 4, 3, 3],
+  x:         [-4, 2, -6, 1, -3, 4, -2, -8, 3, -9, -6, -7, -5, -13],
 };

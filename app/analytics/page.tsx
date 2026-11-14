@@ -1,47 +1,134 @@
-import { accounts, platformMeta } from "@/lib/mock-data";
+import LineChart from "@/components/line-chart";
+import { accounts, days14, followersGained, platformMeta, posts, type Platform } from "@/lib/mock-data";
+import { fmtDay, num, signed } from "@/lib/format";
+
+const connected = accounts.filter((a) => a.connected);
+const plotted: { platform: Platform; color: string }[] = [
+  { platform: "tiktok", color: "var(--accent)" },
+  { platform: "instagram", color: "var(--text)" },
+  { platform: "linkedin", color: "var(--muted)" },
+];
+const sum = (xs: number[]) => xs.reduce((s, v) => s + v, 0);
 
 export default function AnalyticsPage() {
-  const data = accounts.filter((a) => a.connected).sort((a, b) => b.followers - a.followers);
-  const max = Math.max(...data.map((a) => a.followers));
-  const growth = [...data].sort((a, b) => b.followersDelta - a.followersDelta)[0];
-  const total = data.reduce((s, a) => s + a.followers, 0);
-  const delta = data.reduce((s, a) => s + a.followersDelta, 0);
-  const kpis = [
-    { label: "Followers, all channels", value: total.toLocaleString(), note: `${delta >= 0 ? "+" : ""}${delta} in the last 7 days` },
-    { label: "Fastest growing", value: platformMeta[growth.platform].label, note: `+${growth.followersDelta} in the last 7 days` },
-    { label: "Posts published", value: String(data.reduce((s, a) => s + a.postsThisWeek, 0)), note: "this week" },
-  ];
+  const rows = connected
+    .map((a) => {
+      const v = followersGained[a.platform] ?? [];
+      return { a, last7: sum(v.slice(7)), prev7: sum(v.slice(0, 7)), total: sum(v) };
+    })
+    .sort((x, y) => y.last7 - x.last7);
+  const all7 = sum(rows.map((r) => r.last7));
+  const allPrev = sum(rows.map((r) => r.prev7));
+  const top = rows[0];
+  const others = all7 - top.last7;
+  const pct = allPrev > 0 ? Math.round(((all7 - allPrev) / allPrev) * 100) : 0;
+  const published = posts.filter((p) => p.status === "published");
+  const labels = days14.map(fmtDay);
+
   return (
-    <div className="px-6 py-8 max-w-[1200px]">
-      <div className="mb-6">
-        <h1 className="text-[24px] font-semibold tracking-tight text-[#111827]">Analytics</h1>
-        <p className="mt-1 text-sm text-[#5f6672]">TikTok added {growth.followersDelta.toLocaleString()} followers this week, more than every other channel combined.</p>
+    <div className="page">
+      <div className="title-row">
+        <div>
+          <h1 className="page-title">Analytics</h1>
+          <p className="page-sub">
+            {platformMeta[top.a.platform].label} gained {num(top.last7)} followers in the last 7 days
+            {others > 0 && top.last7 > others ? ", more than every other channel combined" : ""}.
+          </p>
+        </div>
       </div>
-      <div className="grid grid-cols-3 divide-x divide-[#e5e7eb] border border-[#e5e7eb] rounded-lg bg-white mb-6">
-        {kpis.map((k) => (
-          <div key={k.label} className="px-5 py-4">
-            <div className="text-xs text-[#5f6672] mb-1">{k.label}</div>
-            <div className="text-[24px] font-medium tabular-nums">{k.value}</div>
-            <div className="text-xs text-[#5f6672] mt-1">{k.note}</div>
+
+      <section className="card" aria-labelledby="growth-title" style={{ marginBottom: 24 }}>
+        <div className="card-head">
+          <div>
+            <h2 id="growth-title" className="card-title">Follower growth</h2>
+            <div className="card-note">{fmtDay(days14[0])} – {fmtDay(days14[13])}, followers gained per day</div>
           </div>
-        ))}
-      </div>
-      <div className="border border-[#e5e7eb] rounded-lg bg-white max-w-[760px]">
-        <div className="px-5 py-3 border-b border-[#e5e7eb]">
-          <h2 className="text-sm font-semibold">Followers by channel</h2>
         </div>
-        <div className="px-5 py-4 space-y-3">
-          {data.map((a, i) => (
-            <div key={a.id} className="flex items-center gap-3">
-              <div className="w-20 text-xs text-[#5f6672]">{platformMeta[a.platform].label}</div>
-              <div className="flex-1 h-2 rounded-full bg-[#f3f4f6]">
-                <div className="h-2 rounded-full" style={{ width: `${(a.followers / max) * 100}%`, backgroundColor: i === 0 ? "#b8336a" : "#9ca3af" }} />
-              </div>
-              <div className="w-16 text-right text-xs tabular-nums">{a.followers.toLocaleString()}</div>
+        <div className="analytics-report">
+          <div className="analytics-side">
+            <div className="kpi-label">Gained, last 7 days</div>
+            <div className="kpi-value">{signed(all7)}</div>
+            <div style={{ marginTop: 8 }}>
+              <span className={pct >= 0 ? "pill pill-ok" : "pill pill-bad"}>{signed(pct)}% vs previous 7 days</span>
             </div>
-          ))}
+            <table className="tbl" style={{ marginTop: 20 }}>
+              <tbody>
+                {plotted.map((p) => {
+                  const r = rows.find((x) => x.a.platform === p.platform)!;
+                  return (
+                    <tr key={p.platform}>
+                      <td>
+                        <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span aria-hidden style={{ width: 10, height: 10, borderRadius: 999, background: p.color, flex: "none" }} />
+                          {platformMeta[p.platform].label}
+                        </span>
+                      </td>
+                      <td className="num">{signed(r.last7)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <p className="card-note" style={{ marginTop: 10 }}>YouTube and X are in the table below, not plotted: both are under 15 a day.</p>
+          </div>
+          <div style={{ minWidth: 0, padding: "4px 12px 12px 8px" }}>
+            <LineChart
+              labels={labels}
+              height={300}
+              series={plotted.map((p) => ({ name: platformMeta[p.platform].label, color: p.color, values: followersGained[p.platform] }))}
+            />
+          </div>
         </div>
-      </div>
+      </section>
+
+      <section className="card" aria-labelledby="detail-title">
+        <div className="card-head" style={{ paddingBottom: 8 }}>
+          <h2 id="detail-title" className="card-title">By channel</h2>
+          <span className="card-note">Connected channels, 1–14 Nov 2026</span>
+        </div>
+        <table className="tbl">
+          <thead>
+            <tr>
+              <th>Channel</th>
+              <th className="num">Followers</th>
+              <th className="num">Last 7 days</th>
+              <th className="num">Previous 7</th>
+              <th className="num">Posts this week</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(({ a, last7, prev7 }) => {
+              const m = platformMeta[a.platform];
+              return (
+                <tr key={a.id}>
+                  <td>
+                    <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span className="mark" style={{ background: m.color }}>{m.initial}</span>
+                      {m.label}
+                    </span>
+                  </td>
+                  <td className="num">{num(a.followers)}</td>
+                  <td className="num" style={{ color: last7 < 0 ? "var(--negative)" : "var(--positive)" }}>{signed(last7)}</td>
+                  <td className="num">{signed(prev7)}</td>
+                  <td className="num">{a.postsThisWeek}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        <div className="card-note" style={{ padding: "10px 20px", borderTop: "1px solid var(--rule)" }}>
+          {published.length} published posts reached {num(published.reduce((s, p) => s + p.impressions, 0))} impressions. Facebook is not connected and is left out.
+        </div>
+      </section>
+
+      <style>{`
+        .analytics-report { display: grid; grid-template-columns: 390px minmax(0, 1fr); }
+        .analytics-side { padding: 8px 20px 20px; border-right: 1px solid var(--rule); }
+        @media (max-width: 1100px) {
+          .analytics-report { grid-template-columns: 1fr; }
+          .analytics-side { border-right: 0; border-bottom: 1px solid var(--rule); }
+        }
+      `}</style>
     </div>
   );
 }

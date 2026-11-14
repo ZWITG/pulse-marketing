@@ -16,7 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="antialiased" style={{ background: "var(--ground)", color: "var(--text)", fontFamily: "var(--font-dm-sans), system-ui, sans-serif" }}>
         <div className="flex min-h-screen">
           <Sidebar />
-          <main className="flex-1 overflow-x-hidden">{children}</main>
+          <main className="min-w-0 flex-1 overflow-x-hidden max-md:pt-12">{children}</main>
         </div>
       </body>
     </html>

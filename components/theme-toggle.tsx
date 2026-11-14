@@ -6,26 +6,27 @@ export default function ThemeToggle() {
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("pulse.theme");
-    const isDark = saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches);
-    setDark(isDark);
-    document.documentElement.classList.toggle("dark", isDark);
+    try {
+      const saved = localStorage.getItem("pulse.theme");
+      const on = saved ? saved === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.classList.toggle("dark", on);
+      setDark(on);
+    } catch {}
   }, []);
 
-  const toggle = () => {
+  function toggle() {
     const next = !dark;
     setDark(next);
     document.documentElement.classList.toggle("dark", next);
-    localStorage.setItem("pulse.theme", next ? "dark" : "light");
-  };
+    try { localStorage.setItem("pulse.theme", next ? "dark" : "light"); } catch {}
+  }
 
   return (
-    <button
-      onClick={toggle}
-      className="flex h-8 w-8 items-center justify-center rounded-md border border-neutral-200 text-sm hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800"
-      aria-label="Toggle theme"
-    >
-      {dark ? "☀" : "☾"}
+    <button onClick={toggle} className="btn btn-quiet" style={{ height: 32, padding: "0 8px" }} aria-label={dark ? "Switch to light theme" : "Switch to dark theme"}>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+        {dark ? <circle cx="8" cy="8" r="3.2" /> : <path d="M13 9.5A5.5 5.5 0 1 1 6.5 3a4.5 4.5 0 0 0 6.5 6.5Z" />}
+      </svg>
+      <span>{dark ? "Light" : "Dark"}</span>
     </button>
   );
 }

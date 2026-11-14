@@ -1,4 +1,8 @@
-const rules = [
+"use client";
+
+import { useState } from "react";
+
+const initial = [
   { id: "r1", name: "Re-share top posts", trigger: "A post passes 1,000 impressions", action: "Re-queue it to all channels after 7 days", enabled: true },
   { id: "r2", name: "Draft replies to questions", trigger: "A comment contains a question", action: "Draft a reply for approval", enabled: true },
   { id: "r3", name: "Turn blog posts into social posts", trigger: "A new post appears in the blog feed", action: "Write 3 variants as drafts", enabled: false },
@@ -6,31 +10,41 @@ const rules = [
   { id: "r5", name: "Monday report", trigger: "Every Monday at 08:00", action: "Email last week's performance", enabled: true },
 ];
 
+const lower = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
+
 export default function AutomationsPage() {
+  const [rules, setRules] = useState(initial);
   const on = rules.filter((r) => r.enabled).length;
   return (
-    <div className="px-6 py-8 max-w-[1200px]">
-      <div className="flex items-baseline justify-between mb-6">
+    <div className="page">
+      <div className="title-row">
         <div>
-          <h1 className="text-[24px] font-semibold tracking-tight text-[#111827]">Automations</h1>
-          <p className="mt-1 text-sm text-[#5f6672]">{on} of {rules.length} rules running.</p>
+          <h1 className="page-title">Automations</h1>
+          <p className="page-sub">{on} of {rules.length} rules running.</p>
         </div>
-        <button className="h-8 px-3 rounded-md bg-[#b8336a] text-white text-sm font-medium hover:opacity-90">New rule</button>
+        <button className="btn btn-primary">New rule</button>
       </div>
-      <div className="border border-[#e5e7eb] rounded-lg bg-white divide-y divide-[#f2f2f2] max-w-[860px]">
-        {rules.map((r) => (
-          <div key={r.id} className="flex items-center gap-4 px-5 py-4">
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-[#111827]">{r.name}</div>
-              <div className="mt-1 text-xs text-[#5f6672]">When {r.trigger.charAt(0).toLowerCase() + r.trigger.slice(1)}, then {r.action.charAt(0).toLowerCase() + r.action.slice(1)}.</div>
+      <section className="card" style={{ maxWidth: 860 }} aria-label="Rules">
+        <div className="rows">
+          {rules.map((r) => (
+            <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 16, padding: "14px 20px", minHeight: 64 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div id={`${r.id}-name`} style={{ fontWeight: 500 }}>{r.name}</div>
+                <div className="muted" style={{ marginTop: 2, fontSize: 13 }}>When {lower(r.trigger)}, then {lower(r.action)}.</div>
+              </div>
+              <span className={r.enabled ? "pill pill-ok" : "pill"}>{r.enabled ? "On" : "Off"}</span>
+              <button
+                role="switch"
+                aria-checked={r.enabled}
+                aria-labelledby={`${r.id}-name`}
+                className="switch"
+                onClick={() => setRules(rules.map((x) => (x.id === r.id ? { ...x, enabled: !x.enabled } : x)))}
+              />
             </div>
-            <span className={`text-xs ${r.enabled ? "text-[#247b50]" : "text-[#5f6672]"}`}>{r.enabled ? "On" : "Off"}</span>
-            <span className={`relative h-5 w-9 rounded-full ${r.enabled ? "bg-[#b8336a]" : "bg-[#d1d5db]"}`}>
-              <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white ${r.enabled ? "left-[18px]" : "left-0.5"}`} />
-            </span>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </section>
+      <p className="card-note" style={{ marginTop: 12 }}>Rules do not run yet. Switches change this page only.</p>
     </div>
   );
 }

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { loadPosts, type StoredPost } from "@/lib/store";
 import { platformMeta, type Platform } from "@/lib/mock-data";
 
+const pill: Record<string, string> = { published: "pill pill-ok", scheduled: "pill pill-accent", draft: "pill" };
+
 export default function YourPosts() {
   const [posts, setPosts] = useState<StoredPost[]>([]);
   useEffect(() => setPosts(loadPosts()), []);
@@ -11,39 +13,30 @@ export default function YourPosts() {
   if (posts.length === 0) return null;
 
   return (
-    <div className="mt-6 rounded-lg border border-neutral-200 bg-white">
-      <div className="border-b border-neutral-200 px-5 py-4">
-        <h2 className="text-sm font-semibold">Your posts</h2>
+    <section className="card" aria-labelledby="yp-title">
+      <div className="card-head" style={{ paddingBottom: 8 }}>
+        <h2 id="yp-title" className="card-title">Your posts</h2>
+        <span className="card-note">{posts.length} saved in this browser</span>
       </div>
-      <ul className="divide-y divide-neutral-100">
+      <div className="rows">
         {posts.map((p) => (
-          <li key={p.id} className="flex items-center gap-4 px-5 py-3">
-            <div className="flex -space-x-1">
+          <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 20px", minHeight: 45 }}>
+            <span style={{ display: "flex", gap: 4 }}>
               {p.platforms.map((pl) => {
                 const meta = platformMeta[pl as Platform];
                 return (
-                  <span
-                    key={pl}
-                    className="flex h-6 w-6 items-center justify-center rounded text-[10px] font-semibold text-white ring-2 ring-white"
-                    style={{ backgroundColor: meta?.color || "#888" }}
-                  >
-                    {meta?.initial || pl[0].toUpperCase()}
+                  <span key={pl} className="mark" style={{ background: meta?.color ?? "var(--muted)" }} title={meta?.label}>
+                    {meta?.initial ?? pl[0].toUpperCase()}
                   </span>
                 );
               })}
-            </div>
-            <div className="min-w-0 flex-1 truncate text-sm">{p.content}</div>
-            <span
-              className={`rounded-full px-2 py-0.5 text-xs ${
-                p.status === "published" ? "bg-emerald-50 text-emerald-700" : p.status === "scheduled" ? "bg-blue-50 text-blue-700" : "bg-neutral-100 text-neutral-600"
-              }`}
-            >
-              {p.status}
             </span>
-            <span className="text-xs text-neutral-400">{new Date(p.createdAt).toLocaleDateString()}</span>
-          </li>
+            <span style={{ minWidth: 0, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.content}</span>
+            <span className={pill[p.status] ?? "pill"}>{p.status[0].toUpperCase() + p.status.slice(1)}</span>
+            <span className="muted" style={{ fontSize: 13 }}>{new Date(p.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>
+          </div>
         ))}
-      </ul>
-    </div>
+      </div>
+    </section>
   );
 }

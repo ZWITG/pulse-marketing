@@ -15,100 +15,118 @@ const suggestions = [
   "New tutorial: automating your first marketing workflow in under 10 minutes.",
 ];
 
-const seg = (on: boolean) =>
-  `h-8 px-3 rounded-md border text-sm ${on ? "border-[#111827] bg-[#111827] text-white" : "border-[#e5e7eb] bg-white text-[#5f6672] hover:text-[#111827]"}`;
+const limits: Partial<Record<Platform, number>> = { x: 280, linkedin: 3000, instagram: 2200, tiktok: 2200, facebook: 63206 };
 
 export default function ComposePage() {
   const [selected, setSelected] = useState<Platform[]>(connected.map((a) => a.platform));
   const [content, setContent] = useState("");
-  const [when, setWhen] = useState("now");
+  const [when, setWhen] = useState<"now" | "schedule">("now");
   const [scheduledAt, setScheduledAt] = useState("");
+  const [next, setNext] = useState(0);
   const router = useRouter();
 
+  const over = selected.filter((p) => limits[p] && content.length > (limits[p] as number));
+  const missingTime = when === "schedule" && !scheduledAt;
+  const canSend = content.trim().length > 0 && selected.length > 0 && over.length === 0 && !missingTime;
+
   const submit = () => {
-    if (!content.trim() || selected.length === 0) return;
+    if (!canSend) return;
     addPost({
       content,
       platforms: selected,
       status: when === "now" ? "published" : "scheduled",
       scheduledAt: when === "now" ? new Date().toISOString() : scheduledAt,
     });
-    router.push("/dashboard");
+    router.push("/dashboard/");
+  };
+  const saveDraft = () => {
+    if (!content.trim()) return;
+    addPost({ content, platforms: selected, status: "draft", scheduledAt: "" });
+    router.push("/dashboard/");
+  };
+  const toggle = (p: Platform) => setSelected((s) => (s.includes(p) ? s.filter((x) => x !== p) : [...s, p]));
+  const suggest = () => {
+    setContent(suggestions[next % suggestions.length]);
+    setNext(next + 1);
   };
 
-  const toggle = (p: Platform) => setSelected((s) => (s.includes(p) ? s.filter((x) => x !== p) : [...s, p]));
-
   return (
-    <div className="px-6 py-8 max-w-[860px]">
-      <div className="mb-6">
-        <h1 className="text-[24px] font-semibold tracking-tight text-[#111827]">Compose</h1>
-        <p className="mt-1 text-sm text-[#5f6672]">Write once and publish to {selected.length} of {connected.length} channels.</p>
+    <div className="page">
+      <div className="title-row">
+        <div>
+          <h1 className="page-title">Compose</h1>
+          <p className="page-sub">Write once and publish to {selected.length} of {connected.length} channels.</p>
+        </div>
       </div>
 
-      <div className="border border-[#e5e7eb] rounded-lg bg-white divide-y divide-[#f2f2f2]">
-        <div className="px-5 py-4">
-          <div className="text-xs text-[#5f6672] mb-2">Channels</div>
-          <div className="flex flex-wrap gap-2">
-            {connected.map((a) => {
-              const meta = platformMeta[a.platform];
-              const on = selected.includes(a.platform);
-              return (
-                <button key={a.id} onClick={() => toggle(a.platform)} className={`${seg(on)} flex items-center gap-2`}>
-                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: on ? "#fff" : meta.color }} />
-                  {meta.label}
-                </button>
-              );
-            })}
+      <div className="grid-main">
+        <section className="card" style={{ minWidth: 0 }} aria-label="Post">
+          <div style={{ padding: 20, borderBottom: "1px solid var(--border)" }}>
+            <div className="label">Channels</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {connected.map((a) => {
+                const m = platformMeta[a.platform];
+                return (
+                  <button key={a.id} className="chip" aria-pressed={selected.includes(a.platform)} onClick={() => toggle(a.platform)}>
+                    <span className="mark" style={{ background: m.color, width: 18, height: 18, fontSize: 10 }}>{m.initial}</span>
+                    {m.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
 
-        <div className="px-5 py-4">
-          <div className="flex items-baseline justify-between mb-2">
-            <span className="text-xs text-[#5f6672]">Post</span>
-            <button
-              className="text-xs text-[#6b1d3e] hover:underline"
-              onClick={() => setContent(suggestions[Math.floor(Math.random() * suggestions.length)])}
-            >
-              Suggest a caption
+          <div style={{ padding: 20, borderBottom: "1px solid var(--border)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+              <label className="label" htmlFor="body" style={{ margin: 0 }}>Post</label>
+              <button className="btn btn-quiet" style={{ height: 28 }} onClick={suggest}>Suggest a caption</button>
+            </div>
+            <textarea id="body" className="field" rows={7} style={{ width: "100%", height: "auto", padding: 12, resize: "vertical" }} value={content} onChange={(e) => setContent(e.target.value)} placeholder="What do you want to say?" />
+            <div className="card-note" style={{ marginTop: 6, color: over.length ? "var(--negative)" : undefined }}>
+              {content.length} characters
+              {over.length > 0 && ` · too long for ${over.map((p) => platformMeta[p].label).join(", ")} (${limits[over[0]]} max)`}
+            </div>
+          </div>
+
+          <div style={{ padding: 20, borderBottom: "1px solid var(--border)" }}>
+            <div className="label">When</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+              <button className="chip" aria-pressed={when === "now"} onClick={() => setWhen("now")}>Publish now</button>
+              <button className="chip" aria-pressed={when === "schedule"} onClick={() => setWhen("schedule")}>Schedule</button>
+              {when === "schedule" && (
+                <input type="datetime-local" className="field" aria-label="Publish at" value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)} />
+              )}
+            </div>
+          </div>
+
+          <div style={{ padding: 16, display: "flex", gap: 8, justifyContent: "flex-end", flexWrap: "wrap" }}>
+            <button className="btn" onClick={saveDraft} disabled={!content.trim()}>Save draft</button>
+            <button className="btn btn-primary" onClick={submit} disabled={!canSend}>
+              {when === "now" ? "Publish" : "Schedule post"}
             </button>
           </div>
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={6}
-            placeholder="What do you want to say?"
-            className="w-full rounded-md border border-[#d1d5db] p-3 text-sm focus:border-[#b8336a] focus:outline-none"
-          />
-          <div className="mt-1 text-xs tabular-nums text-[#5f6672] text-right">{content.length} characters</div>
-        </div>
+        </section>
 
-        <div className="px-5 py-4">
-          <div className="text-xs text-[#5f6672] mb-2">When</div>
-          <div className="flex gap-2">
-            <button onClick={() => setWhen("now")} className={seg(when === "now")}>Now</button>
-            <button onClick={() => setWhen("schedule")} className={seg(when === "schedule")}>Schedule</button>
-          </div>
-          {when === "schedule" && (
-            <input
-              type="datetime-local"
-              value={scheduledAt}
-              onChange={(e) => setScheduledAt(e.target.value)}
-              className="mt-3 h-8 rounded-md border border-[#d1d5db] px-2 text-sm"
-            />
-          )}
-        </div>
-
-        <div className="flex justify-end gap-2 px-5 py-4">
-          <button
-            onClick={() => { addPost({ content, platforms: selected, status: "draft", scheduledAt: "" }); router.push("/dashboard"); }}
-            className="h-8 px-3 rounded-md border border-[#e5e7eb] text-sm text-[#5f6672] hover:text-[#111827]"
-          >
-            Save draft
-          </button>
-          <button onClick={submit} className="h-8 px-3 rounded-md bg-[#b8336a] text-white text-sm font-medium hover:opacity-90">
-            {when === "now" ? "Publish" : "Schedule post"}
-          </button>
-        </div>
+        <aside style={{ display: "grid", gap: 24, minWidth: 0, gridTemplateColumns: "minmax(0, 1fr)", alignContent: "start" }}>
+          <section className="card" aria-labelledby="pv-title">
+            <div className="card-head" style={{ paddingBottom: 8 }}>
+              <h2 id="pv-title" className="card-title">Preview</h2>
+              <span className="card-note">Fieldnote Studio</span>
+            </div>
+            <div style={{ padding: "4px 20px 20px" }}>
+              <div style={{ display: "flex", gap: 4, marginBottom: 10 }}>
+                {selected.length === 0 && <span className="muted">No channel selected</span>}
+                {selected.map((p) => (
+                  <span key={p} className="mark" style={{ background: platformMeta[p].color }} title={platformMeta[p].label}>{platformMeta[p].initial}</span>
+                ))}
+              </div>
+              <p style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere", color: content ? undefined : "var(--muted)" }}>{content || "Your post appears here."}</p>
+              <div className="card-note" style={{ marginTop: 12 }}>
+                {when === "now" ? "Goes out when you press Publish." : scheduledAt ? `Scheduled for ${new Date(scheduledAt).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}.` : "Pick a time to schedule."}
+              </div>
+            </div>
+          </section>
+        </aside>
       </div>
     </div>
   );
