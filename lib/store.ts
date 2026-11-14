@@ -4,9 +4,10 @@ export interface StoredPost {
   id: string;
   content: string;
   platforms: string[];
-  status: "draft" | "scheduled" | "published";
+  status: "draft" | "scheduled" | "published" | "failed";
   scheduledAt: string;
   createdAt: string;
+  results?: Record<string, { ok: boolean; detail: string }>;
 }
 
 const KEY = "pulse.posts";

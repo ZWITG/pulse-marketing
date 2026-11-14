@@ -23,27 +23,45 @@ export default function ComposePage() {
   const [when, setWhen] = useState<"now" | "schedule">("now");
   const [scheduledAt, setScheduledAt] = useState("");
   const [next, setNext] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
 
   const over = selected.filter((p) => limits[p] && content.length > (limits[p] as number));
   const missingTime = when === "schedule" && !scheduledAt;
   const canSend = content.trim().length > 0 && selected.length > 0 && over.length === 0 && !missingTime;
 
-  const submit = () => {
-    if (!canSend) return;
-    addPost({
-      content,
-      platforms: selected,
-      status: when === "now" ? "published" : "scheduled",
-      scheduledAt: when === "now" ? new Date().toISOString() : scheduledAt,
-    });
+  // Server build: the API publishes or queues the post. Static build (no API): keep it in this browser only.
+  const send = async (status: "draft" | "scheduled" | "published") => {
+    const body = { content, platforms: selected, status, scheduledAt: status === "published" ? new Date().toISOString() : status === "scheduled" ? new Date(scheduledAt).toISOString() : "" };
+    setBusy(true);
+    setError("");
+    try {
+      const r = await fetch("/api/posts/", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      if (r.ok) {
+        const post = await r.json();
+        if (post.status === "failed") {
+          const lines = Object.entries(post.results ?? {}).filter(([, v]) => !(v as { ok: boolean }).ok).map(([k, v]) => `${platformMeta[k as Platform]?.label ?? k}: ${(v as { detail: string }).detail}`);
+          setError(lines.join(" · ") || "Publishing failed.");
+          setBusy(false);
+          return;
+        }
+        router.push("/dashboard/");
+        return;
+      }
+      if (r.status === 400) {
+        setError((await r.json().catch(() => ({}))).error || "The post was rejected.");
+        setBusy(false);
+        return;
+      }
+    } catch {
+      // no server: fall through to local save
+    }
+    addPost({ content, platforms: selected, status, scheduledAt: body.scheduledAt });
     router.push("/dashboard/");
   };
-  const saveDraft = () => {
-    if (!content.trim()) return;
-    addPost({ content, platforms: selected, status: "draft", scheduledAt: "" });
-    router.push("/dashboard/");
-  };
+  const submit = () => { if (canSend && !busy) send(when === "now" ? "published" : "scheduled"); };
+  const saveDraft = () => { if (content.trim() && !busy) send("draft"); };
   const toggle = (p: Platform) => setSelected((s) => (s.includes(p) ? s.filter((x) => x !== p) : [...s, p]));
   const suggest = () => {
     setContent(suggestions[next % suggestions.length]);
@@ -99,9 +117,10 @@ export default function ComposePage() {
             </div>
           </div>
 
+          {error && <p role="alert" style={{ padding: "12px 20px 0", color: "var(--negative)" }}>{error}</p>}
           <div style={{ padding: 16, display: "flex", gap: 8, justifyContent: "flex-end", flexWrap: "wrap" }}>
-            <button className="btn" onClick={saveDraft} disabled={!content.trim()}>Save draft</button>
-            <button className="btn btn-primary" onClick={submit} disabled={!canSend}>
+            <button className="btn" onClick={saveDraft} disabled={!content.trim() || busy}>Save draft</button>
+            <button className="btn btn-primary" onClick={submit} disabled={!canSend || busy}>
               {when === "now" ? "Publish" : "Schedule post"}
             </button>
           </div>

@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "scheduler": "node scripts/scheduler.mjs",
     "build:web": "node scripts/build-static.mjs",
     "build:exe": "npm run build:web && electron-builder --win",
     "cap:init": "npx cap add android",

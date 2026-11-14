@@ -17,10 +17,13 @@ Following the design-taste-frontend skill, app-screen mode, style `accent-ladder
 - Tailwind `@custom-variant`/`@theme` warnings under Turbopack are cosmetic for now, but check that dark mode actually works.
 - Sidebar workspace is now "Fieldnote Studio" (sample name). All 8 pages are restyled; tsc and `npm run build` pass (2026-11-14).
 - Turbopack dev server can go stale and stop serving new CSS (touching files does not help): kill the process on :3000 and restart `npm run dev`.
-- Build modes: `PULSE_STATIC=1` (via `npm run build:web`) = static export for Electron/Capacitor/APK; plain `next build` = server build with API routes. Route handlers must be named `route.server.ts` so the static build ignores them. `/api/posts/` (GET, POST) stores to `.data/posts.json` (gitignored, see `lib/db.server.ts`); the UI still uses localStorage and is not wired to it yet.
+- Build modes: `PULSE_STATIC=1` (via `npm run build:web`) = static export for Electron/Capacitor/APK; plain `next build` = server build with API routes. Route handlers must be named `route.server.ts` so the static build ignores them. `/api/posts/` (GET, POST) stores to `~/.pulse-marketing/posts.json` (override with PULSE_DATA_DIR; kept outside the project because the dev watcher reloads the page on writes inside it; see `lib/db.server.ts`); the UI still uses localStorage and is not wired to it yet.
 - APK workflow fixed 2026-11-14 (static build, runner's own Android SDK); the exe was rebuilt.
 - Dev server runs on :3000 (`npm run dev`); on Windows PowerShell there is no `&&`, `grep`, `tail` or `head`.
 
+## Real posting (2026-11-14)
+Server build publishes to X (OAuth 1.0a keys) and LinkedIn (pasted token) from `lib/publishers.server.ts`; `/api/posts/` publishes now or queues; `scripts/scheduler.mjs` (`npm run scheduler`) calls `/api/publish-due/` each minute. Setup steps are in `SETUP-POSTING.md`; keys go in `.env.local`. Not yet tested against the live X/LinkedIn APIs (no keys). Instagram/TikTok/YouTube return "not supported yet". Static builds (Pages, exe, APK) keep posts in the browser only.
+
 ## Next
-1. Real backend: OAuth for Instagram/X/LinkedIn/TikTok, DB, job queue for scheduled posts (static export must be dropped for API routes).
+1. Add keys and test X and LinkedIn live; then Instagram, TikTok, YouTube publishers; a real DB; hosting for the server build.
 3. Replace mock data and AI caption/reply stubs with real calls.

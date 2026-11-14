@@ -55,3 +55,4 @@ next-env.d.ts
 /.taste-skill/shots-*/
 /.taste-skill/before/
 /.data/
+!.env.example
