@@ -7,20 +7,23 @@ import { addPost } from "@/lib/store";
 
 const connected = accounts.filter((a) => a.connected);
 
+const suggestions = [
+  "Behind the scenes of our latest campaign. Swipe to see the full story.",
+  "We shipped a feature our users have been asking for. Here's what changed and why.",
+  "5 metrics that actually matter for your marketing, and 3 that don't. Save this.",
+  "You automated your social media and got your weekends back.",
+  "New tutorial: automating your first marketing workflow in under 10 minutes.",
+];
+
+const seg = (on: boolean) =>
+  `h-8 px-3 rounded-md border text-sm ${on ? "border-[#111827] bg-[#111827] text-white" : "border-[#e5e7eb] bg-white text-[#5f6672] hover:text-[#111827]"}`;
+
 export default function ComposePage() {
   const [selected, setSelected] = useState<Platform[]>(connected.map((a) => a.platform));
   const [content, setContent] = useState("");
   const [when, setWhen] = useState("now");
   const [scheduledAt, setScheduledAt] = useState("");
   const router = useRouter();
-
-  const suggestions = [
-    "Behind the scenes of our latest campaign — swipe to see the full story. 📸",
-    "We shipped a feature our users have been asking for. Here's what changed and why. 🧵",
-    "5 metrics that actually matter for your marketing (and 3 that don't). Save this. 📊",
-    "POV: you finally automated your social media and got your weekends back. ⚡",
-    "New tutorial: automating your first marketing workflow in under 10 minutes. 🎬",
-  ];
 
   const submit = () => {
     if (!content.trim() || selected.length === 0) return;
@@ -33,35 +36,25 @@ export default function ComposePage() {
     router.push("/dashboard");
   };
 
-  const toggle = (p: Platform) =>
-    setSelected((s) => (s.includes(p) ? s.filter((x) => x !== p) : [...s, p]));
+  const toggle = (p: Platform) => setSelected((s) => (s.includes(p) ? s.filter((x) => x !== p) : [...s, p]));
 
   return (
-    <div className="p-8 max-w-3xl">
-      <h1 className="text-2xl font-semibold tracking-tight">Compose post</h1>
-      <p className="mt-1 text-sm text-neutral-500">Write once, publish everywhere.</p>
+    <div className="px-6 py-8 max-w-[860px]">
+      <div className="mb-6">
+        <h1 className="text-[24px] font-semibold tracking-tight text-[#111827]">Compose</h1>
+        <p className="mt-1 text-sm text-[#5f6672]">Write once and publish to {selected.length} of {connected.length} channels.</p>
+      </div>
 
-      <div className="mt-6 rounded-lg border border-neutral-200 bg-white p-5 space-y-5">
-        <div>
-          <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">Channels</label>
-          <div className="mt-2 flex flex-wrap gap-2">
+      <div className="border border-[#e5e7eb] rounded-lg bg-white divide-y divide-[#f2f2f2]">
+        <div className="px-5 py-4">
+          <div className="text-xs text-[#5f6672] mb-2">Channels</div>
+          <div className="flex flex-wrap gap-2">
             {connected.map((a) => {
               const meta = platformMeta[a.platform];
               const on = selected.includes(a.platform);
               return (
-                <button
-                  key={a.id}
-                  onClick={() => toggle(a.platform)}
-                  className={`flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition ${
-                    on ? "border-neutral-900 bg-neutral-900 text-white" : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50"
-                  }`}
-                >
-                  <span
-                    className="flex h-5 w-5 items-center justify-center rounded text-[10px] font-semibold text-white"
-                    style={{ backgroundColor: meta.color }}
-                  >
-                    {meta.initial}
-                  </span>
+                <button key={a.id} onClick={() => toggle(a.platform)} className={`${seg(on)} flex items-center gap-2`}>
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: on ? "#fff" : meta.color }} />
                   {meta.label}
                 </button>
               );
@@ -69,51 +62,50 @@ export default function ComposePage() {
           </div>
         </div>
 
-        <div>
-          <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">Content</label>
+        <div className="px-5 py-4">
+          <div className="flex items-baseline justify-between mb-2">
+            <span className="text-xs text-[#5f6672]">Post</span>
+            <button
+              className="text-xs text-[#6b1d3e] hover:underline"
+              onClick={() => setContent(suggestions[Math.floor(Math.random() * suggestions.length)])}
+            >
+              Suggest a caption
+            </button>
+          </div>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             rows={6}
-            placeholder="What's on your mind?"
-            className="mt-2 w-full rounded-md border border-neutral-200 p-3 text-sm focus:border-neutral-400 focus:outline-none"
+            placeholder="What do you want to say?"
+            className="w-full rounded-md border border-[#d1d5db] p-3 text-sm focus:border-[#b8336a] focus:outline-none"
           />
-          <div className="mt-1 flex justify-between text-xs text-neutral-400">
-            <span>{content.length} chars</span>
-            <span className="cursor-pointer text-neutral-500 hover:text-neutral-900" onClick={() => setContent(suggestions[Math.floor(Math.random() * suggestions.length)])}>
-              ✨ Suggest caption
-            </span>
-          </div>
+          <div className="mt-1 text-xs tabular-nums text-[#5f6672] text-right">{content.length} characters</div>
         </div>
 
-        <div>
-          <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">Schedule</label>
-          <div className="mt-2 flex gap-2">
-            {["now", "schedule"].map((w) => (
-              <button
-                key={w}
-                onClick={() => setWhen(w)}
-                className={`rounded-md border px-3 py-1.5 text-sm ${
-                  when === w ? "border-neutral-900 bg-neutral-900 text-white" : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50"
-                }`}
-              >
-                {w === "now" ? "Post now" : "Schedule"}
-              </button>
-            ))}
+        <div className="px-5 py-4">
+          <div className="text-xs text-[#5f6672] mb-2">When</div>
+          <div className="flex gap-2">
+            <button onClick={() => setWhen("now")} className={seg(when === "now")}>Now</button>
+            <button onClick={() => setWhen("schedule")} className={seg(when === "schedule")}>Schedule</button>
           </div>
           {when === "schedule" && (
             <input
               type="datetime-local"
               value={scheduledAt}
               onChange={(e) => setScheduledAt(e.target.value)}
-              className="mt-3 w-full rounded-md border border-neutral-200 p-2 text-sm"
+              className="mt-3 h-8 rounded-md border border-[#d1d5db] px-2 text-sm"
             />
           )}
         </div>
 
-        <div className="flex justify-end gap-2 pt-2">
-          <button onClick={() => { addPost({ content, platforms: selected, status: "draft", scheduledAt: "" }); router.push("/dashboard"); }} className="rounded-md border border-neutral-200 px-4 py-2 text-sm font-medium hover:bg-neutral-50">Save draft</button>
-          <button onClick={submit} className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800">
+        <div className="flex justify-end gap-2 px-5 py-4">
+          <button
+            onClick={() => { addPost({ content, platforms: selected, status: "draft", scheduledAt: "" }); router.push("/dashboard"); }}
+            className="h-8 px-3 rounded-md border border-[#e5e7eb] text-sm text-[#5f6672] hover:text-[#111827]"
+          >
+            Save draft
+          </button>
+          <button onClick={submit} className="h-8 px-3 rounded-md bg-[#b8336a] text-white text-sm font-medium hover:opacity-90">
             {when === "now" ? "Publish" : "Schedule post"}
           </button>
         </div>

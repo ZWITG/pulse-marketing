@@ -38,7 +38,7 @@ export default function Sidebar() {
           </div>
           <span className="text-sm font-semibold tracking-tight text-[#111827]">Pulse</span>
         </div>
-        <div className="mt-3 text-xs text-[#5f6672]">Acme Corp workspace</div>
+        <div className="mt-3 text-xs text-[#5f6672]">Pulse workspace</div>
       </div>
 
       <nav className="flex-1 px-3 space-y-6 overflow-y-auto">
