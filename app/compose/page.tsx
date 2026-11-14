@@ -14,6 +14,14 @@ export default function ComposePage() {
   const [scheduledAt, setScheduledAt] = useState("");
   const router = useRouter();
 
+  const suggestions = [
+    "Behind the scenes of our latest campaign — swipe to see the full story. 📸",
+    "We shipped a feature our users have been asking for. Here's what changed and why. 🧵",
+    "5 metrics that actually matter for your marketing (and 3 that don't). Save this. 📊",
+    "POV: you finally automated your social media and got your weekends back. ⚡",
+    "New tutorial: automating your first marketing workflow in under 10 minutes. 🎬",
+  ];
+
   const submit = () => {
     if (!content.trim() || selected.length === 0) return;
     addPost({
@@ -72,7 +80,9 @@ export default function ComposePage() {
           />
           <div className="mt-1 flex justify-between text-xs text-neutral-400">
             <span>{content.length} chars</span>
-            <span>AI: generate caption · suggest hashtags</span>
+            <span className="cursor-pointer text-neutral-500 hover:text-neutral-900" onClick={() => setContent(suggestions[Math.floor(Math.random() * suggestions.length)])}>
+              ✨ Suggest caption
+            </span>
           </div>
         </div>
 

@@ -31,6 +31,7 @@ export interface InboxItem {
   receivedAt: string;
   replied: boolean;
   priority: "high" | "normal" | "low";
+  suggestedReply?: string;
 }
 
 export const accounts: ConnectedAccount[] = [
@@ -52,11 +53,11 @@ export const posts: Post[] = [
 ];
 
 export const inboxItems: InboxItem[] = [
-  { id: "i1", platform: "instagram", author: "@sarahmktg", message: "Love this! Do you have a free trial?", type: "comment", receivedAt: "5 min ago", replied: false, priority: "high" },
-  { id: "i2", platform: "x", author: "@devjoe", message: "Feature request: bulk scheduling for threads", type: "mention", receivedAt: "12 min ago", replied: false, priority: "normal" },
-  { id: "i3", platform: "linkedin", author: "Maya Chen", message: "Great post. Would love to chat about a partnership.", type: "dm", receivedAt: "1 hr ago", replied: false, priority: "high" },
+  { id: "i1", platform: "instagram", author: "@sarahmktg", message: "Love this! Do you have a free trial?", type: "comment", receivedAt: "5 min ago", replied: false, priority: "high", suggestedReply: "Thanks Sarah! Yes — 14-day free trial, no card needed. Link in bio 🚀" },
+  { id: "i2", platform: "x", author: "@devjoe", message: "Feature request: bulk scheduling for threads", type: "mention", receivedAt: "12 min ago", replied: false, priority: "normal", suggestedReply: "Great idea Joe — added to our roadmap. We're scoping it for Q1." },
+  { id: "i3", platform: "linkedin", author: "Maya Chen", message: "Great post. Would love to chat about a partnership.", type: "dm", receivedAt: "1 hr ago", replied: false, priority: "high", suggestedReply: "Thanks Maya! I'd love to chat — sending you a DM with my calendar link." },
   { id: "i4", platform: "tiktok", author: "@creator_kim", message: "This is exactly what I needed 🔥", type: "comment", receivedAt: "2 hr ago", replied: true, priority: "low" },
-  { id: "i5", platform: "x", author: "@angry_user", message: "Your app keeps crashing on mobile", type: "mention", receivedAt: "3 hr ago", replied: false, priority: "high" },
+  { id: "i5", platform: "x", author: "@angry_user", message: "Your app keeps crashing on mobile", type: "mention", receivedAt: "3 hr ago", replied: false, priority: "high", suggestedReply: "Sorry about that! Could you share your device/OS? We're investigating and will DM you a fix." },
 ];
 
 export const platformMeta: Record<Platform, { label: string; color: string; initial: string }> = {

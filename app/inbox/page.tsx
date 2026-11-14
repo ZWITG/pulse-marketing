@@ -32,6 +32,11 @@ export default function InboxPage() {
                   <span className="ml-auto text-xs text-neutral-400">{i.receivedAt}</span>
                 </div>
                 <p className="mt-1 text-sm text-neutral-700">{i.message}</p>
+                {i.suggestedReply && (
+                  <div className="mt-2 rounded-md bg-neutral-50 p-2 text-xs text-neutral-600">
+                    <span className="font-medium text-neutral-700">AI draft:</span> {i.suggestedReply}
+                  </div>
+                )}
                 <div className="mt-2 flex gap-2">
                   <button className="rounded-md border border-neutral-200 px-2.5 py-1 text-xs font-medium hover:bg-neutral-50">Reply</button>
                   <button className="rounded-md border border-neutral-200 px-2.5 py-1 text-xs font-medium hover:bg-neutral-50">Assign</button>
