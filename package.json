@@ -15,7 +15,9 @@
     "cap:open": "npx cap open android"
   },
   "dependencies": {
+    "@prisma/client": "^7.10.1",
     "next": "16.4.6",
+    "prisma": "^8.0.0-rc.33",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
@@ -37,8 +39,16 @@
   "build": {
     "appId": "com.pulse.marketing",
     "productName": "Pulse Marketing",
-    "files": ["out/**/*", "electron/**/*", "package.json"],
-    "directories": { "output": "dist" },
-    "win": { "target": "nsis" }
+    "files": [
+      "out/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis"
+    }
   }
 }

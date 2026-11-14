@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { accounts, platformMeta, type Platform } from "@/lib/mock-data";
+import { addPost } from "@/lib/store";
 
 const connected = accounts.filter((a) => a.connected);
 
@@ -10,6 +12,18 @@ export default function ComposePage() {
   const [content, setContent] = useState("");
   const [when, setWhen] = useState("now");
   const [scheduledAt, setScheduledAt] = useState("");
+  const router = useRouter();
+
+  const submit = () => {
+    if (!content.trim() || selected.length === 0) return;
+    addPost({
+      content,
+      platforms: selected,
+      status: when === "now" ? "published" : "scheduled",
+      scheduledAt: when === "now" ? new Date().toISOString() : scheduledAt,
+    });
+    router.push("/dashboard");
+  };
 
   const toggle = (p: Platform) =>
     setSelected((s) => (s.includes(p) ? s.filter((x) => x !== p) : [...s, p]));
@@ -88,8 +102,8 @@ export default function ComposePage() {
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
-          <button className="rounded-md border border-neutral-200 px-4 py-2 text-sm font-medium hover:bg-neutral-50">Save draft</button>
-          <button className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800">
+          <button onClick={() => { addPost({ content, platforms: selected, status: "draft", scheduledAt: "" }); router.push("/dashboard"); }} className="rounded-md border border-neutral-200 px-4 py-2 text-sm font-medium hover:bg-neutral-50">Save draft</button>
+          <button onClick={submit} className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800">
             {when === "now" ? "Publish" : "Schedule post"}
           </button>
         </div>

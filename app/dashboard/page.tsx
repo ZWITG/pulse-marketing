@@ -1,4 +1,5 @@
 import { accounts, posts, inboxItems, totals, platformMeta } from "@/lib/mock-data";
+import YourPosts from "@/components/your-posts";
 
 function StatCard({ label, value, delta, hint }: { label: string; value: string; delta?: string; hint?: string }) {
   return (
@@ -159,6 +160,8 @@ export default function DashboardPage() {
           </table>
         </div>
       </div>
+
+      <YourPosts />
     </div>
   );
 }

@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id          String   @id @default(cuid())
+  platform    String
+  handle      String
+  followers   Int      @default(0)
+  connected   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  posts       Post[]
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  accountId   String
+  account     Account  @relation(fields: [accountId], references: [id])
+  content     String
+  status      String   @default("draft")
+  scheduledAt DateTime?
+  impressions Int      @default(0)
+  engagement  Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model InboxItem {
+  id          String   @id @default(cuid())
+  platform    String
+  author      String
+  message     String
+  type        String
+  replied     Boolean  @default(false)
+  priority    String   @default("normal")
+  receivedAt  DateTime @default(now())
+}
