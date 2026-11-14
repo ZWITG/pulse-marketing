@@ -14,14 +14,15 @@ function StatCard({ label, value, delta, hint }: { label: string; value: string;
 export default function DashboardPage() {
   return (
     <div className="p-8">
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-8 flex items-end justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-          <p className="mt-1 text-sm text-neutral-500">Overview of all your connected channels.</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">Saturday, Nov 14</p>
+          <h1 className="mt-1 text-4xl font-semibold tracking-tight">Good morning.</h1>
+          <p className="mt-2 text-sm text-neutral-500">You have {totals.unreadInbox} unread messages and {totals.scheduled} posts going out this week.</p>
         </div>
-        <button className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800">
+        <a href="/compose" className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800">
           + New post
-        </button>
+        </a>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

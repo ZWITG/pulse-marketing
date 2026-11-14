@@ -11,6 +11,7 @@ const nav = [
   { href: "/inbox", label: "Inbox", icon: "✉" },
   { href: "/analytics", label: "Analytics", icon: "▲" },
   { href: "/automations", label: "Automations", icon: "⚡" },
+  { href: "/settings", label: "Settings", icon: "⚙" },
 ];
 
 export default function Sidebar() {
